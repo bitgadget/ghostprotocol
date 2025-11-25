@@ -216,8 +216,8 @@ const App: React.FC = () => {
         <canvas ref={canvasRef} className="absolute inset-0 opacity-20" />
         
         <div className="relative z-10 flex flex-col h-full p-8 md:p-12 max-w-4xl mx-auto justify-end pb-20">
-            {/* Center Logo Area */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full">
+            {/* Center Logo Area - Optimized for Mobile (Higher up) */}
+            <div className="absolute top-[35%] md:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full px-4">
                 <motion.div 
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -245,8 +245,8 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            {/* Boot Log */}
-            <div className="font-mono text-sm md:text-base h-48 overflow-hidden flex flex-col justify-end border-l-2 border-cyber-dim pl-4 bg-black/50 backdrop-blur-sm p-4 rounded-r-lg shadow-[0_0_20px_rgba(0,255,65,0.1)]">
+            {/* Boot Log - Reduced height on mobile */}
+            <div className="font-mono text-sm md:text-base h-32 md:h-48 overflow-hidden flex flex-col justify-end border-l-2 border-cyber-dim pl-4 bg-black/50 backdrop-blur-sm p-4 rounded-r-lg shadow-[0_0_20px_rgba(0,255,65,0.1)]">
                 {bootLines.map((line, index) => (
                     <motion.div 
                         key={index}
@@ -521,7 +521,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="bg-cyber-dark/50 p-6 border border-cyber-dim/30">
-              <h3 className="text-white font-bold mb-4 uppercase">Newsletter Criptata</h3>
+              <h3 className="text-white font-bold uppercase">Newsletter Criptata</h3>
               <p className="text-gray-500 mb-4 text-xs">Ricevi aggiornamenti su nuove vulnerabilità 0-day e patch di sicurezza.</p>
               <div className="flex">
                 <input 

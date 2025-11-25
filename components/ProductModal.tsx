@@ -57,15 +57,24 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
                 <img 
                     src={product.image} 
                     alt={product.name} 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0"
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 grayscale group-hover:grayscale-0 relative z-10"
                 />
                 
                 {/* Visual Effects */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.05)_1px,transparent_1px)] bg-[length:32px_32px] pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyber-green/10 to-transparent h-[20%] animate-scan-vertical pointer-events-none" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.05)_1px,transparent_1px)] bg-[length:32px_32px] pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyber-green/10 to-transparent h-[20%] animate-scan-vertical pointer-events-none z-20" />
                 
-                <div className="absolute bottom-4 left-4 bg-black/80 border border-cyber-dim px-3 py-1 text-[10px] md:text-xs font-mono text-cyber-green backdrop-blur-sm">
+                {/* Pulsing Green Glow Animation */}
+                <motion.div 
+                   className="absolute inset-0 pointer-events-none z-20 mix-blend-soft-light"
+                   animate={{ opacity: [0.2, 0.6, 0.2] }}
+                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                   <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(0,255,65,0.4)_0%,transparent_70%)]" />
+                </motion.div>
+                
+                <div className="absolute bottom-4 left-4 bg-black/80 border border-cyber-dim px-3 py-1 text-[10px] md:text-xs font-mono text-cyber-green backdrop-blur-sm z-30">
                    IMG_SOURCE: ENCRYPTED // 1024x1024
                 </div>
              </div>
