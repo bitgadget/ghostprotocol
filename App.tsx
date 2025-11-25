@@ -27,7 +27,16 @@ const BOOT_SEQUENCE = [
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    // Load cart from local storage on initial render
+    try {
+      const savedCart = localStorage.getItem('ghost_cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (e) {
+      console.error("Failed to load cart", e);
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [glitchActive, setGlitchActive] = useState(false);
   
@@ -37,6 +46,11 @@ const App: React.FC = () => {
   const shape1Y = useTransform(scrollY, [0, 1000], [0, 250]);
   const shape2Y = useTransform(scrollY, [0, 1000], [0, 600]);
   const textY = useTransform(scrollY, [0, 1000], [0, 150]);
+  
+  // Save cart to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('ghost_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
   
   // Loading State
   const [bootLines, setBootLines] = useState<string[]>([]);
@@ -174,6 +188,7 @@ const App: React.FC = () => {
     // Reset cart after checkout (simulation)
     setTimeout(() => {
        setCartItems([]);
+       localStorage.removeItem('ghost_cart');
        setIsCartOpen(false);
        alert("SYSTEM MESSAGE: Transaction Verified. Assets transferred to hidden drop location.");
     }, 2000);
@@ -420,7 +435,7 @@ const App: React.FC = () => {
           <div className="flex items-end justify-between mb-16 border-b border-cyber-dim pb-4">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">ARSENALE TATTICO</h2>
-              <p className="text-cyber-dim">> Equipaggiamento singolo per operazioni mirate.</p>
+              <p className="text-cyber-dim">&gt; Equipaggiamento singolo per operazioni mirate.</p>
             </div>
             <div className="hidden md:block text-xs text-gray-500 font-mono">
               STATUS: READY
@@ -442,7 +457,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">PROTOCOLLI DI SICUREZZA</h2>
-            <p className="text-cyber-green text-lg max-w-2xl mx-auto">> Seleziona il tuo livello di copertura. Bundle pre-configurati per la massima efficienza operativa.</p>
+            <p className="text-cyber-green text-lg max-w-2xl mx-auto">&gt; Seleziona il tuo livello di copertura. Bundle pre-configurati per la massima efficienza operativa.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -463,10 +478,10 @@ const App: React.FC = () => {
                 <Terminal size={20} /> SYSTEM_LOGS
               </h3>
               <div className="space-y-2 text-cyber-dim font-mono text-xs opacity-70">
-                <p>> 23:42:12 - Connection encrypted (AES-256)</p>
-                <p>> 23:42:15 - Tracking cookies incinerated</p>
-                <p>> 23:42:18 - User location masked [Node: Reykjavik]</p>
-                <p>> 23:42:22 - GhostProtocol active</p>
+                <p>&gt; 23:42:12 - Connection encrypted (AES-256)</p>
+                <p>&gt; 23:42:15 - Tracking cookies incinerated</p>
+                <p>&gt; 23:42:18 - User location masked [Node: Reykjavik]</p>
+                <p>&gt; 23:42:22 - GhostProtocol active</p>
               </div>
             </div>
 

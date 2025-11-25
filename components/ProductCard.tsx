@@ -83,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <ul className="text-xs text-cyber-dim mb-6 space-y-1 font-mono">
           {product.specs.map((spec, i) => (
             <li key={i} className="flex items-center">
-              <span className="mr-2 text-[10px]">></span> {spec}
+              <span className="mr-2 text-[10px]">&gt;</span> {spec}
             </li>
           ))}
         </ul>
