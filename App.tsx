@@ -435,7 +435,7 @@ const App: React.FC = () => {
           <div className="flex items-end justify-between mb-16 border-b border-cyber-dim pb-4">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">ARSENALE TATTICO</h2>
-              <p className="text-cyber-dim">&gt; Equipaggiamento singolo per operazioni mirate.</p>
+              <p className="text-cyber-dim">{' > '} Equipaggiamento singolo per operazioni mirate.</p>
             </div>
             <div className="hidden md:block text-xs text-gray-500 font-mono">
               STATUS: READY
@@ -457,7 +457,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">PROTOCOLLI DI SICUREZZA</h2>
-            <p className="text-cyber-green text-lg max-w-2xl mx-auto">&gt; Seleziona il tuo livello di copertura. Bundle pre-configurati per la massima efficienza operativa.</p>
+            <p className="text-cyber-green text-lg max-w-2xl mx-auto">{' > '} Seleziona il tuo livello di copertura. Bundle pre-configurati per la massima efficienza operativa.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -478,10 +478,10 @@ const App: React.FC = () => {
                 <Terminal size={20} /> SYSTEM_LOGS
               </h3>
               <div className="space-y-2 text-cyber-dim font-mono text-xs opacity-70">
-                <p>&gt; 23:42:12 - Connection encrypted (AES-256)</p>
-                <p>&gt; 23:42:15 - Tracking cookies incinerated</p>
-                <p>&gt; 23:42:18 - User location masked [Node: Reykjavik]</p>
-                <p>&gt; 23:42:22 - GhostProtocol active</p>
+                <p>{' > '} 23:42:12 - Connection encrypted (AES-256)</p>
+                <p>{' > '} 23:42:15 - Tracking cookies incinerated</p>
+                <p>{' > '} 23:42:18 - User location masked [Node: Reykjavik]</p>
+                <p>{' > '} 23:42:22 - GhostProtocol active</p>
               </div>
             </div>
 

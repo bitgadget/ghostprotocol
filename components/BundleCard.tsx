@@ -216,7 +216,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ bundle, onAddToCart }) =
               variants={itemVariants}
               className="text-sm text-gray-300 font-mono flex items-start group-hover:text-white transition-colors"
             >
-              <span className="text-cyber-dim mr-2 opacity-50">&gt;</span> {item}
+              <span className="text-cyber-dim mr-2 opacity-50">{' > '}</span> {item}
             </motion.li>
           ))}
         </motion.ul>
