@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Usb, Smartphone, Cpu, Lock, Crosshair, Laptop, Wifi, Mic, Backpack, Key, FileText, Eye, ShoppingCart } from 'lucide-react';
+import { Shield, Usb, Smartphone, Cpu, Lock, Laptop, Wifi, Mic, Backpack, Key, FileText, Eye, ShoppingCart } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
