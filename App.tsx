@@ -60,9 +60,7 @@ const App: React.FC = () => {
   // Boot Sequence Logic
   useEffect(() => {
     let currentLine = 0;
-    const totalDuration = 3500; // 3.5 seconds total load
-    const lineInterval = totalDuration / BOOT_SEQUENCE.length;
-
+    
     const interval = setInterval(() => {
       if (currentLine < BOOT_SEQUENCE.length) {
         setBootLines(prev => [...prev, BOOT_SEQUENCE[currentLine]]);

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Package, Briefcase, User, AlertTriangle, Radio, ShieldAlert, Skull, FileText } from 'lucide-react';
+import { Check, Package, Briefcase, User, AlertTriangle, Radio, ShieldAlert, Skull } from 'lucide-react';
 import { Bundle, BundleTier } from '../types';
 import { CyberButton } from './CyberButton';
 import { PRODUCTS } from '../constants';
