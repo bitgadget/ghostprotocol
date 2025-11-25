@@ -1,3 +1,4 @@
+
 export enum BundleTier {
   BASE = 'BASE',
   MEDIO = 'MEDIO',
@@ -24,4 +25,13 @@ export interface Bundle {
   features: string[];
   recommendedFor: string;
   items: string[];
+}
+
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  type: 'product' | 'bundle';
 }

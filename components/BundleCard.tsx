@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Package, Briefcase, User, AlertTriangle, Radio, ShieldAlert, Skull, FileText } from 'lucide-react';
@@ -7,6 +8,7 @@ import { PRODUCTS } from '../constants';
 
 interface BundleCardProps {
   bundle: Bundle;
+  onAddToCart: (bundle: Bundle) => void;
 }
 
 const getTierIcon = (tier: BundleTier) => {
@@ -35,7 +37,7 @@ const findProductImage = (itemName: string): string | null => {
 // Fallback image for non-product items (like PDF guides)
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=200&auto=format&fit=crop"; 
 
-export const BundleCard: React.FC<BundleCardProps> = ({ bundle }) => {
+export const BundleCard: React.FC<BundleCardProps> = ({ bundle, onAddToCart }) => {
   const isGhost = bundle.tier === BundleTier.FANTASMA;
 
   const containerVariants = {
@@ -138,7 +140,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ bundle }) => {
                  <p className="text-xs text-gray-500 mt-2">PAYMENT: XMR / BTC ONLY</p>
               </div>
               
-              <CyberButton variant="danger" className="w-full text-xl py-6 animate-pulse-fast">
+              <CyberButton onClick={() => onAddToCart(bundle)} variant="danger" className="w-full text-xl py-6 animate-pulse-fast">
                  INITIATE PROTOCOL
               </CyberButton>
           </div>
@@ -248,7 +250,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ bundle }) => {
               €{bundle.price.toFixed(2)}
             </span>
          </div>
-         <CyberButton variant="primary" className="w-full justify-center">
+         <CyberButton onClick={() => onAddToCart(bundle)} variant="primary" className="w-full justify-center">
             ACQUISTA
          </CyberButton>
       </div>

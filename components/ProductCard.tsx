@@ -6,7 +6,7 @@ import { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (id: string) => void;
+  onAddToCart: (product: Product) => void;
 }
 
 const getIcon = (iconName: string) => {
@@ -91,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-cyber-dim/20 border-dashed">
           <span className="text-lg font-bold text-white font-mono">€{product.price.toFixed(2)}</span>
           <button 
-            onClick={() => onAddToCart(product.id)}
+            onClick={() => onAddToCart(product)}
             className="group/btn relative overflow-hidden bg-cyber-dim/20 hover:bg-cyber-green text-cyber-green hover:text-black px-4 py-2 text-sm font-mono uppercase transition-all duration-300 skew-x-[-10deg]"
           >
             <span className="inline-block skew-x-[10deg] font-bold">Add_to_Cart</span>

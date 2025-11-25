@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity } from 'lucide-react';
@@ -5,6 +6,8 @@ import { PRODUCTS, BUNDLES } from './constants';
 import { ProductCard } from './components/ProductCard';
 import { BundleCard } from './components/BundleCard';
 import { CyberButton } from './components/CyberButton';
+import { CartSidebar } from './components/CartSidebar';
+import { CartItem, Product, Bundle } from './types';
 
 const BOOT_SEQUENCE = [
   "INITIALIZING GHOST_PROTOCOL KERNEL v4.0.2...",
@@ -23,7 +26,8 @@ const BOOT_SEQUENCE = [
 
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [glitchActive, setGlitchActive] = useState(false);
   
@@ -123,9 +127,59 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const addToCart = () => {
-    setCartCount(prev => prev + 1);
+  // Cart Functions
+  const handleAddToCart = (item: Product | Bundle) => {
+    setCartItems(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      } else {
+        // Determine type and image
+        const isProduct = 'description' in item;
+        // For bundles, use a fallback image or the first item's image if possible
+        const image = isProduct 
+          ? (item as Product).image 
+          : "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=200&auto=format&fit=crop";
+
+        const newItem: CartItem = {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: image,
+          quantity: 1,
+          type: isProduct ? 'product' : 'bundle'
+        };
+        return [...prev, newItem];
+      }
+    });
+    setIsCartOpen(true);
   };
+
+  const handleUpdateQuantity = (id: string, delta: number) => {
+    setCartItems(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQuantity = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    }));
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleCheckout = () => {
+    alert("SYSTEM MESSAGE: Secure crypto gateway initialized. Scanning wallet...");
+    // Reset cart after checkout (simulation)
+    setTimeout(() => {
+       setCartItems([]);
+       setIsCartOpen(false);
+       alert("SYSTEM MESSAGE: Transaction Verified. Assets transferred to hidden drop location.");
+    }, 2000);
+  };
+
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const scrollToSection = (id: string) => {
     setIsMenuOpen(false);
@@ -214,6 +268,15 @@ const App: React.FC = () => {
       <div className="scanline opacity-20" />
       <div className="fixed inset-0 pointer-events-none z-50 animate-pulse-fast opacity-[0.02] bg-white mix-blend-overlay" />
 
+      <CartSidebar 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        items={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveItem}
+        onCheckout={handleCheckout}
+      />
+
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-black/90 border-b border-cyber-dim backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -235,10 +298,13 @@ const App: React.FC = () => {
                 {item}
               </button>
             ))}
-            <div className="relative cursor-pointer group">
+            <div 
+              className="relative cursor-pointer group"
+              onClick={() => setIsCartOpen(true)}
+            >
               <ShoppingCart className="text-white group-hover:text-cyber-green transition-colors" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-cyber-green text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                <span className="absolute -top-2 -right-2 bg-cyber-green text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">
                   {cartCount}
                 </span>
               )}
@@ -246,9 +312,22 @@ const App: React.FC = () => {
           </div>
 
           {/* Mobile Toggle */}
-          <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X /> : <Menu />}
-          </button>
+          <div className="flex md:hidden gap-4 items-center">
+            <div 
+                className="relative cursor-pointer"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <ShoppingCart className="text-white" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-cyber-green text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                    {cartCount}
+                  </span>
+                )}
+            </div>
+            <button className="text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -350,7 +429,7 @@ const App: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {PRODUCTS.map(product => (
-              <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
+              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
             ))}
           </div>
         </div>
@@ -368,7 +447,7 @@ const App: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {BUNDLES.map(bundle => (
-              <BundleCard key={bundle.id} bundle={bundle} />
+              <BundleCard key={bundle.id} bundle={bundle} onAddToCart={handleAddToCart} />
             ))}
           </div>
         </div>
