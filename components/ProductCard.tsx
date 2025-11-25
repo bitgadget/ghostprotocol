@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Usb, Smartphone, Cpu, Lock, Crosshair, Laptop, Wifi, Mic, Backpack, Key, FileText } from 'lucide-react';
+import { Shield, Usb, Smartphone, Cpu, Lock, Crosshair, Laptop, Wifi, Mic, Backpack, Key, FileText, Eye, ShoppingCart } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+  onOpenModal?: (product: Product) => void;
 }
 
 const getIcon = (iconName: string) => {
@@ -25,7 +26,7 @@ const getIcon = (iconName: string) => {
   }
 };
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onOpenModal }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -50,8 +51,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
          </div>
       </div>
       
-      {/* Image Container with Cyberpunk Effects */}
-      <div className="relative w-full h-48 overflow-hidden bg-black">
+      {/* Image Container with Cyberpunk Effects - Clickable for Modal */}
+      <div 
+        className="relative w-full h-48 overflow-hidden bg-black cursor-pointer"
+        onClick={() => onOpenModal && onOpenModal(product)}
+      >
         {/* The Image */}
         <div className="absolute inset-0">
              <img 
@@ -67,35 +71,53 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         {/* Green Tint Overlay (fades out on hover) */}
         <div className="absolute inset-0 bg-cyber-green/20 mix-blend-multiply pointer-events-none group-hover:bg-transparent transition-colors duration-300" />
         
-        {/* Crosshair Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <Crosshair className="text-cyber-green/50 w-24 h-24 animate-[spin_3s_linear_infinite]" strokeWidth={1} />
+        {/* Overlay Action Hint */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
+            <div className="border border-cyber-green px-4 py-2 bg-black/80 text-cyber-green font-mono text-xs flex items-center gap-2 uppercase tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                <Eye size={14} /> View_Specs
+            </div>
         </div>
       </div>
       
       {/* Content */}
       <div className="p-5 flex flex-col flex-grow relative z-10 bg-cyber-black">
-        <h3 className="text-xl font-bold mb-2 text-white font-mono group-hover:text-cyber-green transition-colors">{product.name}</h3>
+        <h3 className="text-xl font-bold mb-2 text-white font-mono group-hover:text-cyber-green transition-colors cursor-pointer" onClick={() => onOpenModal && onOpenModal(product)}>{product.name}</h3>
         <p className="text-gray-400 text-sm mb-4 font-mono leading-relaxed flex-grow border-l-2 border-cyber-dim/30 pl-3 group-hover:border-cyber-green transition-colors">
             {product.description}
         </p>
         
         <ul className="text-xs text-cyber-dim mb-6 space-y-1 font-mono">
-          {product.specs.map((spec, i) => (
+          {product.specs.slice(0, 2).map((spec, i) => (
             <li key={i} className="flex items-center">
               <span className="mr-2 text-[10px]">{' > '}</span> {spec}
             </li>
           ))}
+          {product.specs.length > 2 && (
+             <li className="flex items-center text-cyber-dim/50 italic">
+               <span className="mr-2 text-[10px]">+</span> {product.specs.length - 2} more modules...
+             </li>
+          )}
         </ul>
 
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-cyber-dim/20 border-dashed">
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-cyber-dim/20 border-dashed gap-2">
           <span className="text-lg font-bold text-white font-mono">€{product.price.toFixed(2)}</span>
-          <button 
-            onClick={() => onAddToCart(product)}
-            className="group/btn relative overflow-hidden bg-cyber-dim/20 hover:bg-cyber-green text-cyber-green hover:text-black px-4 py-2 text-sm font-mono uppercase transition-all duration-300 skew-x-[-10deg]"
-          >
-            <span className="inline-block skew-x-[10deg] font-bold">Add_to_Cart</span>
-          </button>
+          
+          <div className="flex gap-2">
+            <button 
+                onClick={() => onOpenModal && onOpenModal(product)}
+                className="p-2 border border-cyber-dim text-cyber-dim hover:text-white hover:border-white transition-colors"
+                title="View Details"
+            >
+                <Eye size={18} />
+            </button>
+            <button 
+                onClick={() => onAddToCart(product)}
+                className="group/btn relative overflow-hidden bg-cyber-dim/20 hover:bg-cyber-green text-cyber-green hover:text-black px-3 py-2 text-sm font-mono uppercase transition-all duration-300 flex items-center gap-2"
+            >
+                <ShoppingCart size={16} />
+                <span className="font-bold">ADD</span>
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

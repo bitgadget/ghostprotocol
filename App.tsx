@@ -7,6 +7,7 @@ import { ProductCard } from './components/ProductCard';
 import { BundleCard } from './components/BundleCard';
 import { CyberButton } from './components/CyberButton';
 import { CartSidebar } from './components/CartSidebar';
+import { ProductModal } from './components/ProductModal';
 import { CartItem, Product, Bundle } from './types';
 
 const BOOT_SEQUENCE = [
@@ -27,6 +28,7 @@ const BOOT_SEQUENCE = [
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null); // State for Modal
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     // Load cart from local storage on initial render
     try {
@@ -199,6 +201,15 @@ const App: React.FC = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Modal Functions
+  const handleOpenProduct = (product: Product) => {
+    setSelectedProduct(product);
+  };
+  
+  const handleCloseProduct = () => {
+    setSelectedProduct(null);
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-[100] bg-black text-cyber-green font-mono overflow-hidden">
@@ -281,6 +292,7 @@ const App: React.FC = () => {
       <div className="scanline opacity-20" />
       <div className="fixed inset-0 pointer-events-none z-50 animate-pulse-fast opacity-[0.02] bg-white mix-blend-overlay" />
 
+      {/* Components Overlay */}
       <CartSidebar 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
@@ -288,6 +300,13 @@ const App: React.FC = () => {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onCheckout={handleCheckout}
+      />
+
+      <ProductModal 
+        isOpen={!!selectedProduct} 
+        product={selectedProduct} 
+        onClose={handleCloseProduct}
+        onAddToCart={handleAddToCart}
       />
 
       {/* Navbar */}
@@ -442,7 +461,12 @@ const App: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {PRODUCTS.map(product => (
-              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onAddToCart={handleAddToCart}
+                onOpenModal={handleOpenProduct}
+              />
             ))}
           </div>
         </div>
