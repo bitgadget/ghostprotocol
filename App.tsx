@@ -7,6 +7,7 @@ import { ProductCard } from './components/ProductCard';
 import { CyberButton } from './components/CyberButton';
 import { CartSidebar } from './components/CartSidebar';
 import { ProductModal } from './components/ProductModal';
+import { CheckoutModal } from './components/CheckoutModal';
 import { CartItem, Product, Bundle, BundleTier, Language } from './types';
 import { TRANSLATIONS } from './translations';
 
@@ -18,6 +19,7 @@ const App: React.FC = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
@@ -198,16 +200,18 @@ const App: React.FC = () => {
   };
 
   const handleCheckout = () => {
-    alert("SYSTEM MESSAGE: Secure crypto gateway initialized. Scanning wallet...");
-    setTimeout(() => {
-       setCartItems([]);
-       localStorage.removeItem('ghost_cart');
-       setIsCartOpen(false);
-       alert("SYSTEM MESSAGE: Transaction Verified. Assets transferred to hidden drop location.");
-    }, 2000);
+     setIsCartOpen(false);
+     setIsCheckoutOpen(true);
+  };
+  
+  const handlePaymentSuccess = () => {
+    setCartItems([]);
+    localStorage.removeItem('ghost_cart');
+    setIsCheckoutOpen(false);
   };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const cartTotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const scrollToSection = (id: string) => {
     setIsMenuOpen(false);
@@ -365,6 +369,15 @@ const App: React.FC = () => {
         onClose={handleCloseProduct}
         onAddToCart={handleAddToCart}
         lang={lang}
+      />
+      
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        total={cartTotal}
+        onSuccess={handlePaymentSuccess}
+        lang={lang}
+        cryptoPrices={cryptoPrices}
       />
 
       <nav className="fixed top-0 left-0 right-0 z-40 bg-black/90 border-b border-cyber-dim backdrop-blur-sm">
