@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Lock, CreditCard, Check, Copy, RefreshCw, Terminal, ChevronRight, ShieldAlert, Cpu } from 'lucide-react';
+import { X, Check, Terminal, ShieldAlert } from 'lucide-react';
 import { CyberButton } from './CyberButton';
 import { TRANSLATIONS } from '../translations';
 import { Language } from '../types';
