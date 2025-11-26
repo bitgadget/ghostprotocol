@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity } from 'lucide-react';
+import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity, HardDrive, FileCode } from 'lucide-react';
 import { PRODUCTS, BUNDLES } from './constants';
 import { ProductCard } from './components/ProductCard';
 import { BundleCard } from './components/BundleCard';
@@ -210,6 +210,11 @@ const App: React.FC = () => {
     setSelectedProduct(null);
   };
 
+  // Categorize Products
+  const hardwareIds = ['phone-graphene', 'pixel-pro', 'laptop-hardened', 'vpn-router', 'voice-changer'];
+  const hardwareProducts = PRODUCTS.filter(p => hardwareIds.includes(p.id));
+  const digitalProducts = PRODUCTS.filter(p => !hardwareIds.includes(p.id));
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-[100] bg-black text-cyber-green font-mono overflow-hidden">
@@ -397,6 +402,20 @@ const App: React.FC = () => {
             }} 
         />
         
+        {/* Pulsing Green Glow Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-2xl max-h-2xl flex items-center justify-center pointer-events-none z-0 mix-blend-screen">
+          <motion.div 
+            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-cyber-green blur-[80px]"
+          />
+           <motion.div 
+            animate={{ scale: [1, 1.5, 1], opacity: [0.05, 0.15, 0.05] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute w-[400px] h-[400px] md:w-[700px] md:h-[700px] rounded-full bg-cyber-dim blur-[100px]"
+          />
+        </div>
+        
         {/* Layer 1: Floating Elements (Parallax) */}
         <motion.div 
            style={{ y: shape1Y }}
@@ -459,16 +478,42 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {PRODUCTS.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAddToCart={handleAddToCart}
-                onOpenModal={handleOpenProduct}
-              />
-            ))}
+          {/* HARDWARE ROW */}
+          <div className="mb-12">
+            <h3 className="text-xl text-white font-bold mb-6 flex items-center gap-2 border-l-4 border-cyber-green pl-3">
+              <HardDrive size={24} className="text-cyber-green"/> HARDWARE
+            </h3>
+            <div className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-thin scrollbar-track-black scrollbar-thumb-cyber-dim">
+              {hardwareProducts.map(product => (
+                <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center">
+                  <ProductCard 
+                    product={product} 
+                    onAddToCart={handleAddToCart}
+                    onOpenModal={handleOpenProduct}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* DIGITAL & GEAR ROW */}
+          <div>
+            <h3 className="text-xl text-white font-bold mb-6 flex items-center gap-2 border-l-4 border-cyber-green pl-3">
+              <FileCode size={24} className="text-cyber-green"/> DIGITAL & FIELD GEAR
+            </h3>
+            <div className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-thin scrollbar-track-black scrollbar-thumb-cyber-dim">
+              {digitalProducts.map(product => (
+                <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center">
+                  <ProductCard 
+                    product={product} 
+                    onAddToCart={handleAddToCart}
+                    onOpenModal={handleOpenProduct}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </section>
 
