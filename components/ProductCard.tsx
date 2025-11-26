@@ -2,12 +2,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Usb, Smartphone, Cpu, Lock, Laptop, Wifi, Mic, Backpack, Key, FileText, Eye, ShoppingCart } from 'lucide-react';
-import { Product } from '../types';
+import { Product, Language } from '../types';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   onOpenModal?: (product: Product) => void;
+  lang?: Language;
 }
 
 const getIcon = (iconName: string) => {
@@ -26,7 +27,10 @@ const getIcon = (iconName: string) => {
   }
 };
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onOpenModal }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onOpenModal, lang = 'it' }) => {
+  const addText = lang === 'it' ? 'AGGIUNGI' : 'ADD';
+  const viewText = lang === 'it' ? 'Vedi Specifiche' : 'View Specs';
+  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -34,13 +38,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
       viewport={{ once: true }}
       className="relative group border border-cyber-dim bg-cyber-black flex flex-col h-full hover:border-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.2)] transition-all duration-300 overflow-hidden"
     >
-      {/* Corner accents */}
       <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
 
-      {/* Header Info */}
       <div className="flex justify-between items-center p-3 border-b border-cyber-dim/30 bg-cyber-dark/50">
          <div className="flex items-center gap-2 text-cyber-dim group-hover:text-cyber-green transition-colors">
             {getIcon(product.icon)}
@@ -51,12 +53,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
          </div>
       </div>
       
-      {/* Image Container with Cyberpunk Effects - Clickable for Modal */}
       <div 
         className="relative w-full h-48 overflow-hidden bg-black cursor-pointer"
         onClick={() => onOpenModal && onOpenModal(product)}
       >
-        {/* The Image */}
         <div className="absolute inset-0">
              <img 
                 src={product.image} 
@@ -65,21 +65,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
              />
         </div>
         
-        {/* Scanline Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
-        
-        {/* Green Tint Overlay (fades out on hover) */}
         <div className="absolute inset-0 bg-cyber-green/20 mix-blend-multiply pointer-events-none group-hover:bg-transparent transition-colors duration-300" />
-        
-        {/* Overlay Action Hint */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
             <div className="border border-cyber-green px-4 py-2 bg-black/80 text-cyber-green font-mono text-xs flex items-center gap-2 uppercase tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                <Eye size={14} /> View_Specs
+                <Eye size={14} /> {viewText}
             </div>
         </div>
       </div>
       
-      {/* Content */}
       <div className="p-5 flex flex-col flex-grow relative z-10 bg-cyber-black">
         <h3 className="text-xl font-bold mb-2 text-white font-mono group-hover:text-cyber-green transition-colors cursor-pointer" onClick={() => onOpenModal && onOpenModal(product)}>{product.name}</h3>
         <p className="text-gray-400 text-sm mb-4 font-mono leading-relaxed flex-grow border-l-2 border-cyber-dim/30 pl-3 group-hover:border-cyber-green transition-colors">
@@ -89,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
         <ul className="text-xs text-cyber-dim mb-6 space-y-1 font-mono">
           {product.specs.slice(0, 2).map((spec, i) => (
             <li key={i} className="flex items-center">
-              <span className="mr-2 text-[10px]">{' > '}</span> {spec}
+              <span className="mr-2 text-[10px] text-cyber-dim opacity-50">{' > '}</span> {spec}
             </li>
           ))}
           {product.specs.length > 2 && (
@@ -115,7 +109,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
                 className="group/btn relative overflow-hidden bg-cyber-dim/20 hover:bg-cyber-green text-cyber-green hover:text-black px-3 py-2 text-sm font-mono uppercase transition-all duration-300 flex items-center gap-2"
             >
                 <ShoppingCart size={16} />
-                <span className="font-bold">ADD</span>
+                <span className="font-bold">{addText}</span>
             </button>
           </div>
         </div>

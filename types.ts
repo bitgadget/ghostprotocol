@@ -6,6 +6,8 @@ export enum BundleTier {
   FANTASMA = 'FANTASMA'
 }
 
+export type Language = 'it' | 'en';
+
 export interface Product {
   id: string;
   name: string;
