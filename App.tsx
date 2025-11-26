@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity, HardDrive, FileCode } from 'lucide-react';
+import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity, HardDrive, FileCode, TrendingUp, Shield, Lock, Skull, Zap, ChevronRight, Crosshair } from 'lucide-react';
 import { PRODUCTS, BUNDLES } from './constants';
 import { ProductCard } from './components/ProductCard';
-import { BundleCard } from './components/BundleCard';
 import { CyberButton } from './components/CyberButton';
 import { CartSidebar } from './components/CartSidebar';
 import { ProductModal } from './components/ProductModal';
-import { CartItem, Product, Bundle } from './types';
+import { CartItem, Product, Bundle, BundleTier } from './types';
 
 const BOOT_SEQUENCE = [
   "INITIALIZING GHOST_PROTOCOL KERNEL v4.0.2...",
@@ -42,6 +41,12 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [glitchActive, setGlitchActive] = useState(false);
   
+  // Selected Bundle State for the new Terminal UI
+  const [activeBundleId, setActiveBundleId] = useState<string>(BUNDLES[0].id);
+  
+  // Crypto Ticker State
+  const [cryptoPrices, setCryptoPrices] = useState({ btc: 0, xmr: 0 });
+
   // Parallax Scroll Hooks
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 1000], [0, 400]);
@@ -53,6 +58,33 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('ghost_cart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  // Fetch Crypto Prices from Kraken
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        // Fetch BTC (XBT) and Monero (XMR) in USDT
+        const response = await fetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSDT,XMRUSDT');
+        const data = await response.json();
+        
+        if (data.result) {
+          const btcData = data.result['XBTUSDT'] || data.result['XXBTZUSD'];
+          const xmrData = data.result['XMRUSDT'] || data.result['XXMRZUSD'];
+
+          const btcPrice = btcData ? parseFloat(btcData.c[0]) : 0;
+          const xmrPrice = xmrData ? parseFloat(xmrData.c[0]) : 0;
+
+          setCryptoPrices({ btc: btcPrice, xmr: xmrPrice });
+        }
+      } catch (error) {
+        console.error("Crypto Ticker Error:", error);
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
   
   // Loading State
   const [bootLines, setBootLines] = useState<string[]>([]);
@@ -210,10 +242,73 @@ const App: React.FC = () => {
     setSelectedProduct(null);
   };
 
+  // Helper function to find image based on item name (fuzzy match)
+  const findProductImage = (itemName: string): string | null => {
+    const normalizedItem = itemName.toLowerCase();
+    const product = PRODUCTS.find(p => {
+      const normalizedName = p.name.toLowerCase();
+      return normalizedItem.includes(normalizedName) || normalizedName.includes(normalizedItem);
+    });
+    return product ? product.image : null;
+  };
+
+  // Helper Component for Horizontal Slider
+  const ProductSlider = ({ products }: { products: Product[] }) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const { current } = scrollRef;
+            const scrollAmount = 320; // Approx card width
+            current.scrollBy({
+                left: direction === 'right' ? scrollAmount : -scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    return (
+        <div className="relative group/slider">
+            {/* Scroll Buttons - Visible on hover/mobile */}
+            <button 
+                onClick={() => scroll('left')}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/80 border border-cyber-green text-cyber-green p-2 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity hover:bg-cyber-green hover:text-black rounded-r"
+            >
+                {' < '}
+            </button>
+            <button 
+                onClick={() => scroll('right')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/80 border border-cyber-green text-cyber-green p-2 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity hover:bg-cyber-green hover:text-black rounded-l"
+            >
+                {' > '}
+            </button>
+
+            <div 
+                ref={scrollRef}
+                className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-thin scrollbar-track-black scrollbar-thumb-cyber-dim px-1"
+            >
+                {products.map(product => (
+                    <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center">
+                        <ProductCard 
+                            product={product} 
+                            onAddToCart={handleAddToCart}
+                            onOpenModal={handleOpenProduct}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+  };
+
   // Categorize Products
   const hardwareIds = ['phone-graphene', 'pixel-pro', 'laptop-hardened', 'vpn-router', 'voice-changer'];
   const hardwareProducts = PRODUCTS.filter(p => hardwareIds.includes(p.id));
   const digitalProducts = PRODUCTS.filter(p => !hardwareIds.includes(p.id));
+  
+  // Active Bundle Data
+  const activeBundle = BUNDLES.find(b => b.id === activeBundleId) || BUNDLES[0];
+  const isGhostActive = activeBundle.tier === BundleTier.FANTASMA;
 
   if (loading) {
     return (
@@ -317,11 +412,33 @@ const App: React.FC = () => {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-black/90 border-b border-cyber-dim backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Terminal className="text-cyber-green animate-pulse" />
-            <span className={`text-xl font-bold tracking-widest ${glitchActive ? 'translate-x-1 text-red-500' : 'text-white'}`}>
-              GHOST_PROTOCOL
-            </span>
+          <div className="flex items-center gap-4 md:gap-8">
+            <div className="flex items-center gap-2">
+              <Terminal className="text-cyber-green animate-pulse" />
+              <span className={`text-xl font-bold tracking-widest ${glitchActive ? 'translate-x-1 text-red-500' : 'text-white'}`}>
+                GHOST_PROTOCOL
+              </span>
+            </div>
+            
+            {/* Real-time Crypto Ticker */}
+            <div className="hidden sm:flex items-center gap-4 md:gap-6 border-l border-cyber-dim/30 pl-4 md:pl-6">
+                <div className="flex items-center gap-1 text-[10px] text-cyber-alert animate-pulse">
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyber-alert" />
+                    LIVE_FEED
+                </div>
+                <div className="flex flex-col text-[10px] md:text-xs font-mono leading-tight">
+                   <div className="flex items-center gap-2 text-gray-500">
+                      <span>BTC</span>
+                      <span className="text-cyber-green font-bold">${cryptoPrices.btc.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
+                   </div>
+                </div>
+                <div className="flex flex-col text-[10px] md:text-xs font-mono leading-tight">
+                   <div className="flex items-center gap-2 text-gray-500">
+                      <span>XMR</span>
+                      <span className="text-cyber-green font-bold">${cryptoPrices.xmr.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                   </div>
+                </div>
+            </div>
           </div>
 
           {/* Desktop Nav */}
@@ -386,6 +503,17 @@ const App: React.FC = () => {
                 {item}
               </button>
             ))}
+             <div className="mt-8 p-4 border border-cyber-dim/30 bg-cyber-dark/30 rounded w-64">
+                <div className="text-xs text-cyber-dim mb-2 text-center">MARKET_DATA (LIVE)</div>
+                <div className="flex justify-between items-center mb-2">
+                    <span>BTC/USDT</span>
+                    <span className="text-cyber-green font-bold">${cryptoPrices.btc.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                    <span>XMR/USDT</span>
+                    <span className="text-cyber-green font-bold">${cryptoPrices.xmr.toLocaleString()}</span>
+                </div>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -483,17 +611,7 @@ const App: React.FC = () => {
             <h3 className="text-xl text-white font-bold mb-6 flex items-center gap-2 border-l-4 border-cyber-green pl-3">
               <HardDrive size={24} className="text-cyber-green"/> HARDWARE
             </h3>
-            <div className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-thin scrollbar-track-black scrollbar-thumb-cyber-dim">
-              {hardwareProducts.map(product => (
-                <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center">
-                  <ProductCard 
-                    product={product} 
-                    onAddToCart={handleAddToCart}
-                    onOpenModal={handleOpenProduct}
-                  />
-                </div>
-              ))}
-            </div>
+            <ProductSlider products={hardwareProducts} />
           </div>
 
           {/* DIGITAL & GEAR ROW */}
@@ -501,36 +619,201 @@ const App: React.FC = () => {
             <h3 className="text-xl text-white font-bold mb-6 flex items-center gap-2 border-l-4 border-cyber-green pl-3">
               <FileCode size={24} className="text-cyber-green"/> DIGITAL & FIELD GEAR
             </h3>
-            <div className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-thin scrollbar-track-black scrollbar-thumb-cyber-dim">
-              {digitalProducts.map(product => (
-                <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center">
-                  <ProductCard 
-                    product={product} 
-                    onAddToCart={handleAddToCart}
-                    onOpenModal={handleOpenProduct}
-                  />
-                </div>
-              ))}
-            </div>
+            <ProductSlider products={digitalProducts} />
           </div>
 
         </div>
       </section>
 
-      {/* Bundles Section */}
-      <section id="bundle" className="py-24 bg-cyber-dark relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,143,17,0.15),transparent)] pointer-events-none" />
+      {/* NEW BUNDLES SECTION - TACTICAL TERMINAL */}
+      <section id="bundle" className="py-12 md:py-24 bg-black relative overflow-hidden">
+        {/* Dynamic Background based on Tier */}
+        <div className={`absolute inset-0 transition-colors duration-1000 ${isGhostActive ? 'bg-cyber-alert/5' : 'bg-cyber-green/5'}`} />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.8)_1px,transparent_1px)] bg-[length:40px_40px] opacity-20 pointer-events-none" />
         
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">PROTOCOLLI DI SICUREZZA</h2>
-            <p className="text-cyber-green text-lg max-w-2xl mx-auto">{' > '} Seleziona il tuo livello di copertura. Bundle pre-configurati per la massima efficienza operativa.</p>
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12 border-b border-cyber-dim/30 pb-4">
+            <div>
+                <h2 className={`text-3xl md:text-5xl font-bold font-mono tracking-tighter mb-2 ${isGhostActive ? 'text-cyber-alert animate-glitch' : 'text-white'}`}>
+                    PROTOCOLLI DI SICUREZZA
+                </h2>
+                <p className={`${isGhostActive ? 'text-cyber-alert' : 'text-cyber-green'} text-sm md:text-base font-mono`}>
+                    {' > '} SELECT CLEARANCE LEVEL // SYSTEM_READY
+                </p>
+            </div>
+            {isGhostActive && (
+                 <div className="text-cyber-alert font-bold animate-pulse uppercase tracking-widest border border-cyber-alert px-4 py-1 mt-4 md:mt-0">
+                    Warning: Threat Level Extreme
+                 </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {BUNDLES.map(bundle => (
-              <BundleCard key={bundle.id} bundle={bundle} onAddToCart={handleAddToCart} />
-            ))}
+          {/* TERMINAL UI CONTAINER */}
+          <div className={`flex flex-col lg:flex-row border-2 min-h-[600px] transition-all duration-500 bg-black/80 backdrop-blur-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] ${isGhostActive ? 'border-cyber-alert shadow-[0_0_30px_rgba(255,0,60,0.15)]' : 'border-cyber-dim shadow-[0_0_30px_rgba(0,255,65,0.1)]'}`}>
+             
+             {/* LEFT SIDE: SELECTOR MENU */}
+             <div className="w-full lg:w-1/4 border-b lg:border-b-0 lg:border-r border-cyber-dim/30 flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible">
+                {BUNDLES.map((bundle) => {
+                    const isActive = activeBundleId === bundle.id;
+                    const isGhost = bundle.tier === BundleTier.FANTASMA;
+                    
+                    return (
+                        <button
+                            key={bundle.id}
+                            onClick={() => setActiveBundleId(bundle.id)}
+                            className={`relative flex-shrink-0 lg:flex-shrink p-4 lg:p-6 text-left transition-all duration-300 group border-r lg:border-r-0 border-cyber-dim/20 lg:border-b ${
+                                isActive 
+                                    ? isGhost ? 'bg-cyber-alert text-black' : 'bg-cyber-green text-black'
+                                    : 'hover:bg-cyber-dim/10 text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="font-mono text-xs opacity-70">LVL_{bundle.tier === BundleTier.FANTASMA ? 'X' : parseInt(bundle.price.toString()) % 10}</span>
+                                {isActive && <ChevronRight size={14} className="animate-pulse" />}
+                            </div>
+                            <h3 className="font-bold font-mono text-sm lg:text-lg uppercase leading-tight">{bundle.name}</h3>
+                            <div className={`text-[10px] mt-2 font-mono ${isActive ? 'text-black/70' : 'text-cyber-dim'}`}>
+                                {bundle.items.length} MODULES INSTALLED
+                            </div>
+                            
+                            {/* Active Indicator Line */}
+                            {isActive && (
+                                <motion.div 
+                                    layoutId="activeIndicator"
+                                    className={`absolute left-0 top-0 bottom-0 w-1 lg:w-2 ${isGhost ? 'bg-black' : 'bg-white'}`}
+                                />
+                            )}
+                        </button>
+                    );
+                })}
+             </div>
+
+             {/* RIGHT SIDE: MAIN DISPLAY */}
+             <div className="flex-1 relative overflow-hidden flex flex-col">
+                {/* CRT Scanline within terminal */}
+                <div className={`absolute inset-0 bg-gradient-to-b from-transparent ${isGhostActive ? 'via-cyber-alert/5' : 'via-cyber-green/5'} to-transparent h-[10%] animate-scan-vertical pointer-events-none z-0`} />
+
+                {/* Content Transition Wrapper */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeBundle.id}
+                        initial={{ opacity: 0, x: 20, filter: 'blur(5px)' }}
+                        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, x: -20, filter: 'blur(5px)' }}
+                        transition={{ duration: 0.3 }}
+                        className="flex-1 flex flex-col md:flex-row h-full relative z-10"
+                    >
+                        {/* DETAILS COLUMN */}
+                        <div className="p-6 md:p-10 flex-1 flex flex-col">
+                             <div className="mb-6">
+                                <div className={`inline-flex items-center gap-2 px-2 py-1 text-xs border mb-4 font-mono ${isGhostActive ? 'border-cyber-alert text-cyber-alert' : 'border-cyber-green text-cyber-green'}`}>
+                                    {isGhostActive ? <Skull size={12} /> : <Shield size={12} />}
+                                    <span>PROTOCOL STATUS: ACTIVE</span>
+                                </div>
+                                <h3 className={`text-4xl md:text-5xl font-black font-mono mb-2 ${isGhostActive ? 'text-white' : 'text-white'}`}>
+                                    {activeBundle.name}
+                                </h3>
+                                <p className="text-gray-400 font-mono text-lg italic">
+                                    "{activeBundle.tagline}"
+                                </p>
+                             </div>
+
+                             {/* STATS VISUALIZER */}
+                             <div className="grid grid-cols-3 gap-4 mb-8 font-mono text-xs">
+                                 <div>
+                                     <div className="text-gray-500 mb-1">ANONYMITY</div>
+                                     <div className="h-1 bg-gray-800 w-full">
+                                         <motion.div 
+                                            initial={{ width: 0 }} 
+                                            animate={{ width: isGhostActive ? '100%' : '80%' }} 
+                                            className={`h-full ${isGhostActive ? 'bg-cyber-alert' : 'bg-cyber-green'}`} 
+                                            transition={{ delay: 0.2, duration: 1 }}
+                                         />
+                                     </div>
+                                 </div>
+                                 <div>
+                                     <div className="text-gray-500 mb-1">ENCRYPTION</div>
+                                     <div className="h-1 bg-gray-800 w-full">
+                                         <motion.div 
+                                            initial={{ width: 0 }} 
+                                            animate={{ width: isGhostActive ? '100%' : '60%' }} 
+                                            className={`h-full ${isGhostActive ? 'bg-cyber-alert' : 'bg-cyber-green'}`} 
+                                            transition={{ delay: 0.3, duration: 1 }}
+                                         />
+                                     </div>
+                                 </div>
+                                 <div>
+                                     <div className="text-gray-500 mb-1">COUNTER-INTEL</div>
+                                     <div className="h-1 bg-gray-800 w-full">
+                                         <motion.div 
+                                            initial={{ width: 0 }} 
+                                            animate={{ width: isGhostActive ? '100%' : '40%' }} 
+                                            className={`h-full ${isGhostActive ? 'bg-cyber-alert' : 'bg-cyber-green'}`} 
+                                            transition={{ delay: 0.4, duration: 1 }}
+                                         />
+                                     </div>
+                                 </div>
+                             </div>
+
+                             {/* ITEMS LIST */}
+                             <div className="flex-1 mb-8 overflow-y-auto max-h-[200px] scrollbar-thin pr-2">
+                                 <h4 className={`text-xs font-bold uppercase mb-4 flex items-center gap-2 ${isGhostActive ? 'text-cyber-alert' : 'text-cyber-green'}`}>
+                                     <Crosshair size={14} /> Mission Loadout
+                                 </h4>
+                                 <ul className="space-y-3">
+                                     {activeBundle.items.map((item, i) => (
+                                         <li key={i} className="flex items-center gap-3 group">
+                                             <div className={`w-1 h-1 ${isGhostActive ? 'bg-cyber-alert' : 'bg-cyber-green'} group-hover:scale-150 transition-transform`} />
+                                             <span className="text-gray-300 font-mono text-sm group-hover:text-white transition-colors">{item}</span>
+                                         </li>
+                                     ))}
+                                 </ul>
+                             </div>
+
+                             <div className="mt-auto pt-6 border-t border-gray-800 flex items-center justify-between gap-4">
+                                 <div>
+                                     <div className="text-xs text-gray-500">TOTAL COST</div>
+                                     <div className={`text-3xl font-bold font-mono ${isGhostActive ? 'text-cyber-alert' : 'text-white'}`}>
+                                         €{activeBundle.price.toFixed(0)}
+                                     </div>
+                                 </div>
+                                 <CyberButton 
+                                    onClick={() => handleAddToCart(activeBundle)} 
+                                    variant={isGhostActive ? 'danger' : 'primary'}
+                                 >
+                                     INITIALIZE
+                                 </CyberButton>
+                             </div>
+                        </div>
+
+                        {/* VISUAL COLUMN (Desktop only image preview of bundle contents) */}
+                        <div className="w-full md:w-1/3 bg-black/50 border-t md:border-t-0 md:border-l border-gray-800 p-6 flex flex-col justify-center items-center relative overflow-hidden">
+                             {/* Floating Background Icons */}
+                             <div className={`absolute inset-0 opacity-10 flex items-center justify-center ${isGhostActive ? 'text-cyber-alert' : 'text-cyber-green'}`}>
+                                 {isGhostActive ? <Skull size={200} /> : <Lock size={200} />}
+                             </div>
+                             
+                             <div className="relative z-10 grid grid-cols-2 gap-4 w-full">
+                                 {activeBundle.items.slice(0, 4).map((item, i) => {
+                                      const img = findProductImage(item);
+                                      if(!img) return null;
+                                      return (
+                                          <div key={i} className={`aspect-square border ${isGhostActive ? 'border-cyber-alert/30' : 'border-cyber-dim/30'} bg-black p-1 relative group`}>
+                                              <img src={img} alt={item} className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all" />
+                                              <div className={`absolute inset-0 ${isGhostActive ? 'bg-cyber-alert/10' : 'bg-cyber-green/10'} mix-blend-overlay`} />
+                                          </div>
+                                      )
+                                 })}
+                             </div>
+                             {activeBundle.items.length > 4 && (
+                                 <div className="mt-4 text-xs text-gray-500 font-mono">
+                                     + {activeBundle.items.length - 4} ADDITIONAL ASSETS
+                                 </div>
+                             )}
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+             </div>
           </div>
         </div>
       </section>
