@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity, HardDrive, FileCode, Shield, Lock, Skull, Crosshair, Globe, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Terminal, Menu, X, ArrowDown, Cpu, Wifi, Activity, HardDrive, FileCode, Shield, Lock, Skull, Crosshair, Globe, ChevronRight, Send } from 'lucide-react';
 import { getProducts, getBundles, PRODUCTS_ALL } from './constants';
 import { ProductCard } from './components/ProductCard';
 import { CyberButton } from './components/CyberButton';
@@ -624,13 +624,16 @@ const App: React.FC = () => {
                 <span className="text-cyber-green cursor-pointer hover:underline">Canary</span>
               </div>
             </div>
-            <div className="bg-cyber-dark/50 p-6 border border-cyber-dim/30">
-              <h3 className="text-white font-bold uppercase">{t.footer_newsletter}</h3>
-              <p className="text-gray-500 mb-4 text-xs">{t.footer_newsletter_desc}</p>
-              <div className="flex">
-                <input type="email" placeholder="email@proton.me" className="bg-black border border-cyber-dim text-white p-2 w-full focus:outline-none focus:border-cyber-green text-sm" />
-                <button className="bg-cyber-green text-black px-4 font-bold hover:bg-white transition-colors">{t.footer_sub}</button>
-              </div>
+            <div className="bg-cyber-dark/50 p-6 border border-cyber-dim/30 hover:border-cyber-green/50 transition-colors group">
+              <h3 className="text-white font-bold uppercase flex items-center gap-2">
+                 <Send size={18} className="text-cyber-green" /> {t.footer_telegram}
+              </h3>
+              <p className="text-gray-500 mb-4 text-xs font-mono mt-2">{t.footer_telegram_desc}</p>
+              <a href="https://t.me/ghost_protocol" target="_blank" rel="noopener noreferrer" className="block w-full">
+                <button className="bg-cyber-dim/20 text-cyber-green border border-cyber-green w-full py-2 font-bold hover:bg-cyber-green hover:text-black transition-all uppercase flex items-center justify-center gap-2">
+                   {t.footer_telegram_btn} <ChevronRight size={14}/>
+                </button>
+              </a>
             </div>
           </div>
           <div className="mt-16 text-center text-gray-600 text-xs font-mono"><p>GHOST_PROTOCOL © {new Date().getFullYear()} // ALL RIGHTS RESERVED // NO LOGS KEPT</p></div>

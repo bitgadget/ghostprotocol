@@ -178,7 +178,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ bundle, onAddToCart, lan
                    <img 
                     src={imgUrl} 
                     alt={item} 
-                    className="w-full h-full object-cover grayscale opacity-60 group-hover/img:grayscale-0 group-hover/img:opacity-100 transition-all duration-300" 
+                    className="w-full h-full object-cover opacity-100 transition-all duration-300" 
                     title={item}
                    />
                 </div>

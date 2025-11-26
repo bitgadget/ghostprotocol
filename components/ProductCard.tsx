@@ -34,9 +34,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="relative group border border-cyber-dim bg-cyber-black flex flex-col h-full hover:border-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.2)] transition-all duration-300 overflow-hidden"
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="relative group border border-cyber-dim bg-cyber-black flex flex-col h-full hover:border-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.2)] transition-all duration-300 overflow-hidden transform-gpu"
     >
       <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyber-green opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -61,13 +61,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
              <img 
                 src={product.image} 
                 alt={product.name}
-                className="w-full h-full object-cover opacity-70 grayscale contrast-125 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 ease-out"
+                className="w-full h-full object-cover opacity-100 group-hover:scale-110 transition-all duration-500 ease-out will-change-transform"
              />
         </div>
         
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
-        <div className="absolute inset-0 bg-cyber-green/20 mix-blend-multiply pointer-events-none group-hover:bg-transparent transition-colors duration-300" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
+        {/* Subtle texture overlay, removed green tint and mix-blend mode for original colors */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(0,0,0,0.06),rgba(0,0,0,0.02),rgba(0,0,0,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none opacity-50" />
+        
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
             <div className="border border-cyber-green px-4 py-2 bg-black/80 text-cyber-green font-mono text-xs flex items-center gap-2 uppercase tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform">
                 <Eye size={14} /> {viewText}
             </div>
