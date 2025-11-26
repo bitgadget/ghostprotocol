@@ -1,6 +1,4 @@
 
-import { Language } from './types';
-
 export const TRANSLATIONS = {
   it: {
     nav_gadget: "GADGET",
